@@ -1,29 +1,54 @@
+from searchClass import SearchAlgorithm
 
+class DFS(SearchAlgorithm):
+    def __init__(self, grid, initial_state, goal_states):
+        super().__init__(grid, initial_state, goal_states)
+        self.directions = [(0, -1), (-1, 0), (0, 1), (1, 0)][::-1]  # Reverse the order of directions
+        self.movement_names = ['up', 'left', 'down', 'right'][::-1]  # Reverse the order of movement names
 
-def dfs(grid, initial_state, goal_states):
-    stack = [(initial_state, [])]
-    visited = set()
-    number_of_nodes = 1
+    def find_path(self):
+        stack = [(self.initial_state, [])]
+        visited = set()
+        number_of_nodes = 1
 
-    directions = [(0, -1), (-1, 0), (0, 1), (1, 0)][::-1]
-    movement_names = ['up', 'left', 'down', 'right'][::-1]
+        while stack:
+            current, path = stack.pop()
 
-    while stack:
-        current, path = stack.pop()
-        if current in visited:
-            continue
+            if current in visited:
+                continue
 
-        visited.add(current)
+            visited.add(current)
 
-        if current in goal_states:
-            return current, number_of_nodes, path
+            if current in self.goal_states:
+                return current, number_of_nodes, path
 
-        for i in range(4):
-            neighbor = (current[0] + directions[i][0], current[1] + directions[i][1])
+            for i in range(4):
+                neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
 
-            if 0 <= neighbor[0] < len(grid[0]) and 0 <= neighbor[1] < len(grid) and \
-               grid[neighbor[1]][neighbor[0]] != 1 and neighbor not in visited:
-                stack.append((neighbor, path + [movement_names[i]]))
-                number_of_nodes += 1
+                if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
+                    stack.append((neighbor, path + [self.movement_names[i]]))
+                    number_of_nodes += 1
 
-    return None, number_of_nodes, None
+        return None, number_of_nodes, None
+    def find_path_draw(self):
+        stack = [(self.initial_state, [self.initial_state])]
+        visited = set()
+        frontier = set()
+        visited_cells = []  # Initialize a list to store visited cells
+        number_of_nodes = 1
+        while stack:
+            current, path = stack.pop()
+            if current in visited:
+                continue
+            visited.add(current)
+            visited_cells.append(current)  # Add the current cell to the visited_cells list
+            if current in self.goal_states:
+                return current, number_of_nodes, path, visited_cells, frontier
+            for i in range(4):
+                neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
+                if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
+                    new_path = path + [neighbor]
+                    stack.append((neighbor, new_path))
+                    frontier.add(neighbor)
+                    number_of_nodes += 1
+        return None, number_of_nodes, None, visited_cells, frontier

@@ -1,101 +1,75 @@
-# import pygame
-# from bfs import bfs
-# from dfs import dfs
-# from gbfs import gbfs
-# from a_star import a_star
-# from bidirecional import cus1
-# # from bidirectional_search import bidirectional_search
-# # from ida_star import ida_star
-# # from bidirectional_astar import bidirectional_astar
+from gui import GUI
 
-# def read_map(file_path):
-#     with open(file_path, 'r') as file:
-#         lines = [line.strip() for line in file.readlines()]
-#         grid_size = tuple(map(int, lines[0][1:-1].split(',')))
-#         initial_state = tuple(map(int, lines[1][1:-1].split(',')))
-#         goal_states = [
-#             tuple(int(num) for num in state.translate(str.maketrans('', '', '() ')).split(','))
-#             for state in lines[2].split('|')
-#         ]
-#         walls = [tuple(map(int, wall[1:-1].split(','))) for wall in lines[3:]]
-#         grid = [[0] * grid_size[1] for _ in range(grid_size[0])]
-#         grid[initial_state[1]][initial_state[0]] = 4
-#         for x, y in goal_states:
-#             grid[y][x] = 9
-#         for x, y, w, h in walls:
-#             for i in range(x, x + w):
-#                 for j in range(y, y + h):
-#                     grid[j][i] = 1
-#         return grid, initial_state, goal_states
+import sys
+from bfs import BFS
+from dfs import DFS
+from gbfs import GBFS
+from a_star import AStar
+from bidirecional_bfs import CUS1
+from ida import CUS2
 
-# # Pygame visualization
-# def draw_grid(grid, path=None, visited=None):
-#     window.fill(WHITE)
-#     for row in range(len(grid)):
-#         for col in range(len(grid[0])):
-#             cell_rect = pygame.Rect(grid_offset[0] + col * cell_size, grid_offset[1] + row * cell_size, cell_size, cell_size)
-#             if grid[row][col] == 1:
-#                 pygame.draw.rect(window, BLACK, cell_rect)
-#             elif grid[row][col] == 4:
-#                 pygame.draw.rect(window, BLUE, cell_rect)
-#             elif grid[row][col] == 9:
-#                 pygame.draw.rect(window, RED, cell_rect)
-#             else:
-#                 pygame.draw.rect(window, GRAY, cell_rect, 1)
-#             if visited and (col, row) in visited:
-#                 pygame.draw.rect(window, YELLOW, cell_rect)
-#             if path and (col, row) in path:
-#                 pygame.draw.rect(window, GREEN, cell_rect)
-#     pygame.display.flip()
+class Generate:
+    def __init__(self, file_path):
+        self.grid, self.initial_state, self.goal_states = self.read_map(file_path)
+        self.methods = ["bfs", 'dfs', "as", "gbfs", "cus1", "cus2"]
 
-# # Pygame setup
-# pygame.init()
-# window_size = (800, 600)
-# window = pygame.display.set_mode(window_size)
-# pygame.display.set_caption("Search Algorithm Visualization")
-# clock = pygame.time.Clock()
+    def read_map(self, file_path):
+        with open(file_path, 'r') as file:
+            lines = [line.strip() for line in file.readlines()]
 
-# # Colors and dimensions
-# WHITE = (255, 255, 255)
-# BLACK = (0, 0, 0)
-# GRAY = (128, 128, 128)
-# GREEN = (0, 255, 0)
-# RED = (255, 0, 0)
-# BLUE = (0, 0, 255)
-# YELLOW = (255, 255, 0)
+        grid_size = tuple(map(int, lines[0][1:-1].split(',')))
+        initial_state = tuple(map(int, lines[1][1:-1].split(',')))
+        goal_states = [
+            tuple(int(num) for num in state.translate(str.maketrans('', '', '() ')).split(','))
+            for state in lines[2].split('|')
+        ]
+        walls = [tuple(map(int, wall[1:-1].split(','))) for wall in lines[3:]]
 
-# cell_size = 50
-# grid_offset = (100, 100)
+        grid = [[0] * grid_size[1] for _ in range(grid_size[0])]
+        grid[initial_state[1]][initial_state[0]] = 4
+        for x, y in goal_states:
+            grid[y][x] = 9
+        for x, y, w, h in walls:
+            for i in range(x, x + w):
+                for j in range(y, y + h):
+                    grid[j][i] = 1
 
-# # Read map from file
-# file_path = 'Map.txt'
-# grid, initial_state, goal_states = read_map(file_path)
+        return grid, initial_state, goal_states
 
-# # Perform search algorithms and visualize
-# algorithms = [
-#     ('BFS', bfs),
-#     ('DFS', dfs),
-#     ('Greedy Best-First Search', gbfs),
-#     ('A*', a_star),
-#     ('Custom Algorithm 1', cus1),
-#     # ('Bidirectional Search', bidirectional_search),
-#     # ('IDA*', ida_star),
-#     # ('Bidirectional A*', bidirectional_astar)
-# ]
+    def find_path(self, method):
+        goal = None
+        number_of_node = 0
+        path = None
+        if method in self.methods:
+            if method == "bfs":
+                path_finder = BFS(self.grid, self.initial_state, self.goal_states)
+                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+            elif method == "dfs":
+                path_finder = DFS(self.grid, self.initial_state, self.goal_states)
+                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+            elif method == "gbfs":
+                path_finder = GBFS(self.grid, self.initial_state, self.goal_states)
+                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+            elif method == "as":
+                path_finder = AStar(self.grid, self.initial_state, self.goal_states)
+                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+            elif method == "cus1":
+                path_finder = CUS1(self.grid, self.initial_state, self.goal_states)
+                # goal, number_of_nodes, path, forward_visited_cells, backward_visited_cells, forward_frontier, backward_frontier = path_finder.find_path_draw()
+                # visited = forward_visited_cells + backward_visited_cells
+                # frontier = forward_frontier.union(backward_frontier)
+                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+                print(path)
+            elif method == "cus2":
+                path_finder = CUS2(self.grid, self.initial_state, self.goal_states)
+                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+        else:
+            print(method=="a*")
+            raise ValueError("Unknown method")
 
-# for name, algorithm in algorithms:
-#     print(f"Running {name}...")
-#     path, visited = algorithm(grid, initial_state, goal_states)
-#     if path:
-#         print(f"Path found by {name}: {path}")
-#         path_coordinates = [initial_state] + [tuple(map(sum, zip(initial_state, direction))) for direction in path]
-#         draw_grid(grid, path=path_coordinates, visited=visited)
-#         pygame.display.set_caption(f"{name} - Path Found")
-#     else:
-#         print(f"No path found by {name}")
-#         draw_grid(grid, path=None, visited=visited)
-#         pygame.display.set_caption(f"{name} - No Path Found")
-#     pygame.time.delay(3000)  # Delay between algorithms
+        return goal, number_of_node, path, visited, frontier
 
-# # Quit Pygame
-# pygame.quit()
+if __name__ == "__main__":
+    path_finder = Generate("Map.txt")
+    gui = GUI(path_finder.grid, path_finder.initial_state, path_finder.goal_states, path_finder)
+    gui.run()

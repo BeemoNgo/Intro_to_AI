@@ -1,44 +1,59 @@
 import heapq
+from searchClass import SearchAlgorithm
 
-def distance(point_a, goal_states):
-    min_distance = float('inf')
-    for goal_state in goal_states:
-        dist = abs(point_a[0] - goal_state[0]) + abs(point_a[1] - goal_state[1])
-        min_distance = min(min_distance, dist)
-    return min_distance
+class CUS2(SearchAlgorithm):
+    def __init__(self, grid, initial_state, goal_states):
+        super().__init__(grid, initial_state, goal_states)
 
-def ida_star(grid, initial_state, goal_states):
-    def dfs(current, path, g_score, threshold):
-        directions = [(0, -1), (-1, 0), (0, 1), (1, 0)][::-1]
-        movement_names = ['up', 'left', 'down', 'right'][::-1]
-        nonlocal number_of_nodes
-        f_score = g_score + distance(current, goal_states)
-        if f_score > threshold:
-            return f_score
-        if current in goal_states:
-            return current, number_of_nodes, path
-        min_cost = float('inf')
-        for i in range(4):
-            neighbor = (current[0] + directions[i][0], current[1] + directions[i][1])
-            if 0 <= neighbor[0] < len(grid[0]) and 0 <= neighbor[1] < len(grid) and \
-                    grid[neighbor[1]][neighbor[0]] != 1 and neighbor not in path:
-                number_of_nodes += 1
-                new_path = path + [movement_names[i]]
-                cost = dfs(neighbor, new_path, g_score + 1, threshold)
-                if isinstance(cost, list):
-                    return cost
-                min_cost = min(min_cost, cost)
-        return min_cost
+    def manhattan_distance(self, point_a):
+        min_distance = float('inf')
+        for goal_state in self.goal_states:
+            dist = abs(point_a[0] - goal_state[0]) + abs(point_a[1] - goal_state[1])
+            min_distance = min(min_distance, dist)
+        return min_distance
 
-    threshold = distance(initial_state, goal_states)
-    number_of_nodes = 1
-    while True:
-        path = dfs(initial_state, [], 0, threshold)
-        if isinstance(path, list):
-            return path
-        if path == float('inf'):
-            print('No goal is reachable; ', number_of_nodes)
-            return None
-        threshold = path
+    def find_path(self):
+        queue = [(0, 0, 0, self.initial_state, [])]  # (f_score, order, g_score, current, path)
+        visited = set()
+        number_of_nodes = 1
+        visited.add(self.initial_state)
+        while queue:
+            f_score, order, g_score, current, path = heapq.heappop(queue)
+            if current in self.goal_states:
+                return current, number_of_nodes, path
+            for i in range(4):
+                neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
+                if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
+                    new_path = path + [self.movement_names[i]]
+                    g_score_new = g_score + 1
+                    h_score = self.manhattan_distance(neighbor)
+                    f_score_new = g_score_new + h_score
+                    number_of_nodes += 1
+                    visited.add(neighbor)
+                    heapq.heappush(queue, (f_score_new, number_of_nodes, g_score_new, neighbor, new_path))
+        return None, number_of_nodes, None
 
-
+    def find_path_draw(self):
+        queue = [(0, 0, 0, self.initial_state, [self.initial_state])]  # (f_score, order, g_score, current, path)
+        visited = set()
+        frontier = set()
+        visited_cells = []  # Initialize a list to store visited cells
+        number_of_nodes = 1
+        visited.add(self.initial_state)
+        while queue:
+            f_score, order, g_score, current, path = heapq.heappop(queue)
+            visited_cells.append(current)  # Add the current cell to the visited_cells list
+            if current in self.goal_states:
+                return current, number_of_nodes, path, visited_cells, frontier
+            for i in range(4):
+                neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
+                if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
+                    new_path = path + [neighbor]
+                    g_score_new = g_score + 1
+                    h_score = self.manhattan_distance(neighbor)
+                    f_score_new = g_score_new + h_score
+                    number_of_nodes += 1
+                    visited.add(neighbor)
+                    frontier.add(neighbor)
+                    heapq.heappush(queue, (f_score_new, number_of_nodes, g_score_new, neighbor, new_path))
+        return None, number_of_nodes, None, visited_cells, frontier
