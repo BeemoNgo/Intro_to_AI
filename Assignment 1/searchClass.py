@@ -8,14 +8,13 @@ class SearchAlgorithm:
         self.number_of_nodes = 1
     def find_path(self):
         """
-        This method should be overridden by the child classes to implement
-        the specific search algorithm.
+        The specific search algorithm
         """
         raise NotImplementedError("The find_path method must be implemented by the child class.")
 
     def is_valid_neighbor(self, current, neighbor):
         """
-        Helper method to check if a neighbor is valid.
+        Check if a neighbor is valid.
         """
         return (
             0 <= neighbor[0] < len(self.grid[0])
@@ -25,7 +24,7 @@ class SearchAlgorithm:
 
     def get_neighbors(self, current, visited):
         """
-        Helper method to get valid neighbors of a given state.
+        Get valid neighbors of a given state.
         """
         neighbors = []
         for i in range(4):
