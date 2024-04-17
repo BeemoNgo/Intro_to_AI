@@ -73,9 +73,9 @@ if __name__ == "__main__":
 
         print(f'{sys.argv[1]} {method}')
         if goal is None:
-            print("No goal is reachable; ", number_of_node)
+            print("No goal is reachable;", number_of_node)
         else:
-            print(goal, number_of_node)
+            print(f"<Node {goal}> {number_of_node}")
             print(path)
     else:
         print("Wrong number of arguments")

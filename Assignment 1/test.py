@@ -70,6 +70,6 @@ class Generate:
         return goal, number_of_node, path, visited, frontier
 
 if __name__ == "__main__":
-    path_finder = Generate("Map.txt")
+    path_finder = Generate("map4.txt")
     gui = GUI(path_finder.grid, path_finder.initial_state, path_finder.goal_states, path_finder)
     gui.run()

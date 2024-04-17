@@ -21,8 +21,14 @@ class GUI:
         self.block_size = 40
         self.padding = 2
         self.border = 1
-        self.window_width = self.width * (self.block_size + self.padding)*1.5
-        self.window_height = self.height * (self.block_size + self.padding) + 200
+        
+        # Calculate the minimum window width and height based on grid and buttons
+        min_window_width = self.width * (self.block_size + self.padding)+300
+        min_window_height = self.height * (self.block_size + self.padding) + 200
+        
+        self.window_width = max(min_window_width, self.width * (self.block_size + self.padding) * 1.5)
+        self.window_height = max(min_window_height, self.height * (self.block_size + self.padding) + 200)
+        
         self.window_size = (self.window_width, self.window_height)
         self.screen = pygame.display.set_mode(self.window_size)
         pygame.display.set_caption("Path Finding Visualization")
