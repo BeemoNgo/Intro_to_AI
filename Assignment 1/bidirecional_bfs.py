@@ -42,6 +42,56 @@ class CUS1(SearchAlgorithm):
                             return backward_neighbor, number_of_nodes, forward_visited[backward_neighbor] + self.reverse_directions(new_path[::-1])
 
         return None, number_of_nodes, None
+    def find_path_draw_1(self):
+        forward_queue = deque([(self.initial_state, [self.initial_state])])
+        backward_queue = deque([(goal_state, [goal_state]) for goal_state in self.goal_states])
+        forward_visited = {self.initial_state: []}
+        backward_visited = {goal_state: [] for goal_state in self.goal_states}
+        node_states = [{self.initial_state: "frontier"}, {goal: "frontier" for goal in self.goal_states}]
+        number_of_nodes = 1
+
+        while forward_queue and backward_queue:
+            if forward_queue:
+                current_forward, path_forward = forward_queue.popleft()
+                forward_visited[current_forward] = path_forward
+                node_states.append({current_forward: "visited"})  # Mark as visited
+
+                for i in range(4):
+                    forward_neighbor = (current_forward[0] + self.directions[i][0], current_forward[1] + self.directions[i][1])
+                    if self.is_valid_neighbor(current_forward, forward_neighbor) and forward_neighbor not in forward_visited:
+                        new_path = path_forward + [forward_neighbor]
+                        forward_queue.append((forward_neighbor, new_path))
+                        forward_visited[forward_neighbor] = new_path
+                        node_states.append({forward_neighbor: "frontier"})  # Add to frontier
+                        number_of_nodes += 1
+                        if forward_neighbor in backward_visited:
+                            # Meeting point
+                            complete_path = new_path + backward_visited[forward_neighbor][::-1]
+                            for x in complete_path:
+                                node_states.append({x:"path"})
+                            return forward_neighbor, number_of_nodes, complete_path, node_states
+
+            if backward_queue:
+                current_backward, path_backward = backward_queue.popleft()
+                backward_visited[current_backward] = path_backward
+                node_states.append({current_backward: "visited"})  # Mark as visited
+
+                for i in range(4):
+                    backward_neighbor = (current_backward[0] + self.directions[i][0], current_backward[1] + self.directions[i][1])
+                    if self.is_valid_neighbor(current_backward, backward_neighbor) and backward_neighbor not in backward_visited:
+                        new_path = path_backward + [backward_neighbor]
+                        backward_queue.append((backward_neighbor, new_path))
+                        backward_visited[backward_neighbor] = new_path
+                        node_states.append({backward_neighbor: "frontier"})  # Add to frontier
+                        number_of_nodes += 1
+                        if backward_neighbor in forward_visited:
+                            # Meeting point
+                            complete_path = forward_visited[backward_neighbor] + new_path[::-1]
+                            for x in complete_path:
+                                node_states.append({x:"path"})
+                            return backward_neighbor, number_of_nodes, complete_path, node_states
+
+        return None, number_of_nodes, None, node_states
     def reverse_directions(self,directions):
         # Define a dictionary to map each direction to its opposite
         opposite = {

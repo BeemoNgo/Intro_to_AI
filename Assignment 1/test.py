@@ -40,36 +40,36 @@ class Generate:
         goal = None
         number_of_node = 0
         path = None
+        node_states = None
         if method in self.methods:
             if method == "bfs":
                 path_finder = BFS(self.grid, self.initial_state, self.goal_states)
-                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+                goal, number_of_node, path, node_states = path_finder.find_path_draw_1()
             elif method == "dfs":
                 path_finder = DFS(self.grid, self.initial_state, self.goal_states)
-                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+                goal, number_of_node, path, node_states = path_finder.find_path_draw_1()
+                print(node_states)
             elif method == "gbfs":
                 path_finder = GBFS(self.grid, self.initial_state, self.goal_states)
-                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+                goal, number_of_node, path, node_states = path_finder.find_path_draw_1()
             elif method == "as":
                 path_finder = AStar(self.grid, self.initial_state, self.goal_states)
-                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+                # goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+                goal, number_of_node, path, node_states = path_finder.find_path_draw_1()
+
             elif method == "cus1":
                 path_finder = CUS1(self.grid, self.initial_state, self.goal_states)
-                # goal, number_of_nodes, path, forward_visited_cells, backward_visited_cells, forward_frontier, backward_frontier = path_finder.find_path_draw()
-                # visited = forward_visited_cells + backward_visited_cells
-                # frontier = forward_frontier.union(backward_frontier)
-                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
-                print(path)
+                goal, number_of_node, path, node_states = path_finder.find_path_draw_1()
             elif method == "cus2":
                 path_finder = CUS2(self.grid, self.initial_state, self.goal_states)
-                goal, number_of_node, path, visited, frontier = path_finder.find_path_draw()
+                goal, number_of_node, path, node_states = path_finder.find_path_draw_1()
         else:
             print(method=="a*")
             raise ValueError("Unknown method")
 
-        return goal, number_of_node, path, visited, frontier
+        return goal, number_of_node, path, node_states
 
 if __name__ == "__main__":
-    path_finder = Generate("map4.txt")
+    path_finder = Generate("map2.txt")
     gui = GUI(path_finder.grid, path_finder.initial_state, path_finder.goal_states, path_finder)
     gui.run()

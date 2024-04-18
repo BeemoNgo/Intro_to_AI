@@ -1,5 +1,5 @@
 import pygame
-
+import time
 # Define colors
 BLACK = (12, 53, 158) #wall
 WHITE = (255, 255, 255) #
@@ -10,6 +10,8 @@ YELLOW = (255, 255, 0) #visited
 GRAY = (255, 190, 152) #frontier
 LIGHT_GRAY = (200, 200, 200) #toggle button
 
+def delay(time_in_ms):
+    pygame.time.delay(time_in_ms)
 class GUI:
     def __init__(self, grid, initial_state, goal_states, path_finder):
         self.path_finder = path_finder
@@ -37,7 +39,20 @@ class GUI:
         self.visited = []
         self.frontier = []
         self.path = []
+        self.solution = []
+        self.finding_state = False
+        self.solution_index = 0  # To track where we are in the solution list
+        self.last_update_time = time.time()  # Last time the screen was updated
+        self.update_interval = 0.05  # Time
         pygame.font.init()
+    
+    def reset(self):
+        self.path = []
+        self.frontier = []
+        self.visited = []
+        self.last_update_time = time.time()
+        self.solution_index = 0
+        self.finding_state = False
 
     def create_buttons(self):
         buttons = []
@@ -74,10 +89,13 @@ class GUI:
     def run_pathfinding(self):
         if self.selected_algorithm:
             method = self.selected_algorithm.lower()
-            goal, number_of_nodes, path, visited, frontier = self.path_finder.find_path(method)
-            self.visited = visited
-            self.frontier = frontier
-            self.path = path
+            goal, number_of_nodes, path, node_states = self.path_finder.find_path(method)
+            # self.visited = visited
+            # self.frontier = frontier
+            # print(node_states)
+            self.solution = node_states
+            self.finding_state = True
+            # self.path = path
             # self.draw_grid(path=path, visited=visited, frontier=frontier)
 
     def draw_grid(self, path=None, visited=None, frontier=None):
@@ -95,6 +113,31 @@ class GUI:
                 else:
                     pygame.draw.rect(self.screen, WHITE, rect)
                     pygame.draw.rect(self.screen, BLACK, rect, self.border)
+
+
+        current_time = time.time()
+        if self.finding_state and current_time - self.last_update_time > self.update_interval:
+            if self.solution_index < len(self.solution):
+                item = self.solution[self.solution_index]
+                for node, state in item.items():
+                    x,y = node
+                    if state == "frontier" and not self.check_special(node):
+                        self.frontier.append(node)
+                    elif state == "visited" and not self.check_special(node):
+                        self.visited.append(node)
+                        rect = pygame.Rect(x * (self.block_size + self.padding) + self.padding, y * (self.block_size + self.padding) + self.padding, self.block_size, self.block_size)
+                        pygame.draw.rect(self.screen, YELLOW, rect)
+                        pygame.draw.rect(self.screen, BLACK, rect, self.border)
+                    elif state == "path" and not self.check_special(node):
+                        self.path.append(node)
+                        rect = pygame.Rect(x * (self.block_size + self.padding) + self.padding, y * (self.block_size + self.padding) + self.padding, self.block_size, self.block_size)
+                        pygame.draw.rect(self.screen, BLUE, rect)
+                        pygame.draw.rect(self.screen, BLACK, rect, self.border)
+                self.last_update_time = current_time
+                self.solution_index += 1
+                if self.solution_index >= len(self.solution):
+                    self.finding_state= False
+                    
 
         for node in self.frontier:
             if self.check_special(node):
@@ -143,20 +186,17 @@ class GUI:
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     mouse_pos = event.pos
                     for button_rect, algorithm in self.buttons:
-                        if button_rect.collidepoint(mouse_pos):
-                            self.path = []
-                            self.frontier = []
-                            self.visited = []
+                        if not self.finding_state and button_rect.collidepoint(mouse_pos):
+                            self.reset()
                             self.selected_algorithm = algorithm
                             print(f"Selected algorithm: {algorithm}")
                             self.run_pathfinding()
                             # Run the selected algorithm here
                             break
-                    else:
-                        self.selected_algorithm = None
 
             self.screen.fill(WHITE)
             self.draw_grid()
             pygame.display.flip()
 
         pygame.quit()
+        
