@@ -9,10 +9,9 @@ class DFS(SearchAlgorithm):
     def find_path(self):
         stack = [(self.initial_state, [])]
         visited = set()
-        number_of_nodes = 1
 
         while stack:
-            current, path = stack.pop()
+            current, path = stack.pop() #LIFO
 
             if current in visited:
                 continue
@@ -20,22 +19,21 @@ class DFS(SearchAlgorithm):
             visited.add(current)
 
             if current in self.goal_states:
-                return current, number_of_nodes, path
+                return current, self.number_of_nodes, path
 
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
 
                 if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
                     stack.append((neighbor, path + [self.movement_names[i]]))
-                    number_of_nodes += 1
+                    self.number_of_nodes += 1
 
-        return None, number_of_nodes, None
-    def find_path_draw(self):
+        return None, self.number_of_nodes, None
+    def find_path_draw(self): #For visualising the methods
         stack = [(self.initial_state, [self.initial_state])]
         visited = set()
         frontier = set()
         visited_cells = []  # Initialize a list to store visited cells
-        number_of_nodes = 1
         while stack:
             current, path = stack.pop()
             if current in visited:
@@ -43,21 +41,20 @@ class DFS(SearchAlgorithm):
             visited.add(current)
             visited_cells.append(current)  # Add the current cell to the visited_cells list
             if current in self.goal_states:
-                return current, number_of_nodes, path, visited_cells, frontier
+                return current, self.number_of_nodes, path, visited_cells, frontier
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
                 if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
                     new_path = path + [neighbor]
                     stack.append((neighbor, new_path))
                     frontier.add(neighbor)
-                    number_of_nodes += 1
-        return None, number_of_nodes, None, visited_cells, frontier
-    def find_path_draw_1(self):
+                    self.number_of_nodes += 1
+        return None, self.number_of_nodes, None, visited_cells, frontier
+    def find_path_draw_1(self): #For tracking the node expanded
         stack = [(self.initial_state, [self.initial_state])]
         visited = set()
         frontier = set()
         node_states = [{self.initial_state: "frontier"}]  # Initial state as frontier
-        number_of_nodes = 1
 
         while stack:
             current, path = stack.pop()
@@ -72,7 +69,7 @@ class DFS(SearchAlgorithm):
                 # Mark all path nodes
                 for node in path:
                     node_states.append({node: "path"})
-                return current, number_of_nodes, path, node_states
+                return current, self.number_of_nodes, path, node_states
 
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
@@ -81,6 +78,7 @@ class DFS(SearchAlgorithm):
                     stack.append((neighbor, path + [neighbor]))
                     frontier.add(neighbor)
                     node_states.append({neighbor: "frontier"})  # Record neighbor as frontier
-                    number_of_nodes += 1
+                    self.number_of_nodes += 1
 
-        return None, number_of_nodes, None, node_states
+
+        return None, self.number_of_nodes, None, node_states

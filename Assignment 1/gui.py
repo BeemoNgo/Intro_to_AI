@@ -2,18 +2,19 @@ import pygame
 import time
 # Define colors
 BLACK = (12, 53, 158) #wall
-WHITE = (255, 255, 255) #
+WHITE = (255, 255, 255) #background
 GREEN = (155, 207, 83)  #goal_state
 RED = (251, 136, 180) #initial_state
-BLUE = (145, 149, 246) #path
+PURPLE = (145, 149, 246) #path
 YELLOW = (255, 255, 0) #visited
-GRAY = (255, 190, 152) #frontier
+ORANGE = (255, 190, 152) #frontier
 LIGHT_GRAY = (200, 200, 200) #toggle button
 
 def delay(time_in_ms):
     pygame.time.delay(time_in_ms)
 class GUI:
     def __init__(self, grid, initial_state, goal_states, path_finder):
+        # Initialize the GUI with the grid, states, and path finder
         self.path_finder = path_finder
         self.grid = grid
         self.initial_state = initial_state
@@ -23,18 +24,16 @@ class GUI:
         self.block_size = 40
         self.padding = 2
         self.border = 1
-        
-        # Calculate the minimum window width and height based on grid and buttons
+        # Calculate window dimensions
         min_window_width = self.width * (self.block_size + self.padding)+300
         min_window_height = self.height * (self.block_size + self.padding) + 200
-        
         self.window_width = max(min_window_width, self.width * (self.block_size + self.padding) * 1.5)
         self.window_height = max(min_window_height, self.height * (self.block_size + self.padding) + 200)
-        
         self.window_size = (self.window_width, self.window_height)
         self.screen = pygame.display.set_mode(self.window_size)
-        pygame.display.set_caption("Path Finding Visualization")
-        self.buttons = self.create_buttons()  # Initialize self.buttons here
+        pygame.display.set_caption("Path Finding Visualisation")
+        # Initialize control buttons
+        self.buttons = self.create_buttons() 
         self.selected_algorithm = None
         self.visited = []
         self.frontier = []
@@ -55,22 +54,19 @@ class GUI:
         self.finding_state = False
 
     def create_buttons(self):
+        # Create interface buttons for selecting algorithms
         buttons = []
         button_width = 120
         button_height = 50
         button_spacing_x = 20
         button_spacing_y = 10
-        
         algorithms = ["BFS", "DFS", "GBFS", "AS", "CUS1", "CUS2"]
         total_buttons = len(algorithms)
         buttons_per_row = 3
-        
         # Calculate the total width of the buttons and spacing in a row
         total_row_width = (button_width * buttons_per_row) + (button_spacing_x * (buttons_per_row - 1))
-        
         # Calculate the starting x-coordinate to center the buttons in a row
         start_x = (self.window_width - total_row_width) // 2
-        
         # Set the starting y-coordinate for the first row of buttons
         start_y = self.window_height - (button_height * 2) - (button_spacing_y * 3)
         
@@ -87,18 +83,17 @@ class GUI:
         return buttons
     
     def run_pathfinding(self):
+        # Execute pathfinding using the selected algorithm
         if self.selected_algorithm:
             method = self.selected_algorithm.lower()
-            goal, number_of_nodes, path, node_states = self.path_finder.find_path(method)
-            # self.visited = visited
-            # self.frontier = frontier
-            # print(node_states)
+            goal, number_of_nodes, path, node_states = self.path_finder.find_path_draw(method)
+            print("Number of nodes:", number_of_nodes)
+            print("Path:",path)
             self.solution = node_states
             self.finding_state = True
-            # self.path = path
-            # self.draw_grid(path=path, visited=visited, frontier=frontier)
 
     def draw_grid(self, path=None, visited=None, frontier=None):
+        # Draw the grid and pathfinding elements
         for row in range(self.height):
             for col in range(self.width):
                 rect = pygame.Rect(col * (self.block_size + self.padding) + self.padding, row * (self.block_size + self.padding) + self.padding, self.block_size, self.block_size)
@@ -114,8 +109,7 @@ class GUI:
                     pygame.draw.rect(self.screen, WHITE, rect)
                     pygame.draw.rect(self.screen, BLACK, rect, self.border)
 
-
-        current_time = time.time()
+        current_time = time.time() # Timing logic for state updates in pathfinding visualization
         if self.finding_state and current_time - self.last_update_time > self.update_interval:
             if self.solution_index < len(self.solution):
                 item = self.solution[self.solution_index]
@@ -131,20 +125,19 @@ class GUI:
                     elif state == "path" and not self.check_special(node):
                         self.path.append(node)
                         rect = pygame.Rect(x * (self.block_size + self.padding) + self.padding, y * (self.block_size + self.padding) + self.padding, self.block_size, self.block_size)
-                        pygame.draw.rect(self.screen, BLUE, rect)
+                        pygame.draw.rect(self.screen, PURPLE, rect)
                         pygame.draw.rect(self.screen, BLACK, rect, self.border)
                 self.last_update_time = current_time
                 self.solution_index += 1
                 if self.solution_index >= len(self.solution):
-                    self.finding_state= False
-                    
-
+                    self.finding_state= False # Stop updating when all states have been processed
+        # Draw frontier, visited, and path nodes for the grid
         for node in self.frontier:
             if self.check_special(node):
                 continue
             x, y = node
             rect = pygame.Rect(x * (self.block_size + self.padding) + self.padding, y * (self.block_size + self.padding) + self.padding, self.block_size, self.block_size)
-            pygame.draw.rect(self.screen, GRAY, rect)
+            pygame.draw.rect(self.screen, ORANGE, rect)
             pygame.draw.rect(self.screen, BLACK, rect, self.border)
 
         for node in self.visited:
@@ -160,11 +153,11 @@ class GUI:
                 continue
             x, y = node
             rect = pygame.Rect(x * (self.block_size + self.padding) + self.padding, y * (self.block_size + self.padding) + self.padding, self.block_size, self.block_size)
-            pygame.draw.rect(self.screen, BLUE, rect)
+            pygame.draw.rect(self.screen, PURPLE, rect)
             pygame.draw.rect(self.screen, BLACK, rect, self.border)
-
+        # Update the display of buttons
         for button_rect, algorithm in self.buttons:
-            button_color = LIGHT_GRAY if self.selected_algorithm == algorithm else GRAY
+            button_color = LIGHT_GRAY if self.selected_algorithm == algorithm else ORANGE
             pygame.draw.rect(self.screen, button_color, button_rect)
             text = pygame.font.Font(None, 24).render(algorithm, True, BLACK)
             text_rect = text.get_rect(center=button_rect.center)
@@ -173,11 +166,13 @@ class GUI:
         pygame.display.flip()
     
     def check_special(self, node):
+        # Check if the node is an initial state or a goal state
         if node == self.initial_state or node in self.goal_states:
             return True
         return False
 
     def run(self):
+        # Main loop for running the GUI
         running = True
         while running:
             for event in pygame.event.get():

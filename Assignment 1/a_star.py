@@ -15,36 +15,33 @@ class AStar(SearchAlgorithm):
     def find_path(self):
         queue = [(0, 0, 0, self.initial_state, [])]  # (f_score, order, g_score, current, path)
         visited = set()
-        number_of_nodes = 1
         visited.add(self.initial_state)
 
         while queue:
             f_score, order, g_score, current, path = heapq.heappop(queue)
 
             if current in self.goal_states:
-                return current, number_of_nodes, path
+                return current, self.number_of_nodes, path
 
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
 
                 if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
                     new_path = path + [self.movement_names[i]]
-                    g_score_new = g_score + 1
+                    g_score_new = g_score + 1 #move to next node
                     h_score = self.manhattan_distance(neighbor)
                     f_score_new = g_score_new + h_score
-                    number_of_nodes += 1
+                    self.number_of_nodes += 1
                     visited.add(neighbor)
-                    heapq.heappush(queue, (f_score_new, number_of_nodes, g_score_new, neighbor, new_path))
+                    heapq.heappush(queue, (f_score_new, self.number_of_nodes, g_score_new, neighbor, new_path)) #if f_score is equal, get number_of_nodes to compare
 
-        return None, number_of_nodes, None
+        return None, self.number_of_nodes, None
     
-    def find_path_draw_1(self):
+    def find_path_draw_1(self): #For tracking the node expanded
         queue = [(0, 0, 0, self.initial_state, [self.initial_state])]  # (f_score, order, g_score, current, path)
         visited = set()
         frontier = set([self.initial_state])  # Track nodes in the frontier
         node_states = [{self.initial_state: "frontier"}]  # Initial node as frontier
-        number_of_nodes = 1
-
         while queue:
             f_score, order, g_score, current, path = heapq.heappop(queue)
 
@@ -58,7 +55,7 @@ class AStar(SearchAlgorithm):
                 # Mark all path nodes
                 for node in path:
                     node_states.append({node: "path"})
-                return current, number_of_nodes, path, node_states
+                return current, self.number_of_nodes, path, node_states
 
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
@@ -68,25 +65,24 @@ class AStar(SearchAlgorithm):
                     g_score_new = g_score + 1
                     h_score = self.manhattan_distance(neighbor)
                     f_score_new = g_score_new + h_score
-                    heapq.heappush(queue, (f_score_new, number_of_nodes, g_score_new, neighbor, new_path))
+                    heapq.heappush(queue, (f_score_new, self.number_of_nodes, g_score_new, neighbor, new_path))
                     frontier.add(neighbor)
                     node_states.append({neighbor: "frontier"})  # Record neighbor as frontier
-                    number_of_nodes += 1
+                    self.number_of_nodes += 1
 
-        return None, number_of_nodes, None, node_states
+        return None, self.number_of_nodes, None, node_states
     
-    def find_path_draw(self):
+    def find_path_draw(self): #For visualising the methods
         queue = [(0, 0, 0, self.initial_state, [self.initial_state])]  # (f_score, order, g_score, current, path)
         visited = set()
         frontier = set()
         visited_cells = []  # Initialize a list to store visited cells
-        number_of_nodes = 1
         visited.add(self.initial_state)
         while queue:
             f_score, order, g_score, current, path = heapq.heappop(queue)
             visited_cells.append(current)  # Add the current cell to the visited_cells list
             if current in self.goal_states:
-                return current, number_of_nodes, path, visited_cells, frontier
+                return current, self.number_of_nodes, path, visited_cells, frontier
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
                 if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
@@ -94,8 +90,8 @@ class AStar(SearchAlgorithm):
                     g_score_new = g_score + 1
                     h_score = self.manhattan_distance(neighbor)
                     f_score_new = g_score_new + h_score
-                    number_of_nodes += 1
+                    self.number_of_nodes += 1
                     visited.add(neighbor)
                     frontier.add(neighbor)
-                    heapq.heappush(queue, (f_score_new, number_of_nodes, g_score_new, neighbor, new_path))
-        return None, number_of_nodes, None, visited_cells, frontier
+                    heapq.heappush(queue, (f_score_new, self.number_of_nodes, g_score_new, neighbor, new_path))
+        return None, self.number_of_nodes, None, visited_cells, frontier

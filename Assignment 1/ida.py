@@ -48,7 +48,7 @@ class CUS2(SearchAlgorithm):
             else: #if pruned list is not empty
                 threshold = min(f_score_new for f_score_new in pruned)
         
-    def find_path_draw_1(self):
+    def find_path_draw_1(self): #For tracking the nodes expanded
         threshold = None
         flag = False
         node_states = [{self.initial_state: "frontier"}]
@@ -69,7 +69,7 @@ class CUS2(SearchAlgorithm):
                     for p in path:
                         node_states.append({p: "path"})  # Add path nodes to states
                     node_states.append({current: "path"})  # Mark goal as path
-                    break #stop the prpgrm when a goal is found
+                    break #stop the program when a goal is found
                 
                 for i in range(4):  
                     neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
@@ -92,10 +92,3 @@ class CUS2(SearchAlgorithm):
             else: #if pruned list is not empty
                 threshold = min(f_score_new for f_score_new in pruned)
               
-            
-
-
-# Assuming you have the necessary grid, initial and goal states defined
-# ida_star_instance = IDAStar(grid, initial_state, goal_states)
-# result = ida_star_instance.find_path()
-# print(result)

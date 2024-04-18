@@ -10,7 +10,6 @@ class SearchAlgorithm:
         """
         The specific search algorithm
         """
-        raise NotImplementedError("The find_path method must be implemented by the child class.")
 
     def is_valid_neighbor(self, current, neighbor):
         """

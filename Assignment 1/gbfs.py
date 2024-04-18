@@ -15,33 +15,31 @@ class GBFS(SearchAlgorithm):
     def find_path(self):
         queue = [(self.manhattan_distance(self.initial_state), 0, self.initial_state, [])]
         visited = set()
-        number_of_nodes = 1
         visited.add(self.initial_state)
 
         while queue:
             f_score, _, current, path = heapq.heappop(queue)
 
             if current in self.goal_states:
-                return current, number_of_nodes, path
+                return current, self.number_of_nodes, path
 
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
 
                 if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
                     new_path = path + [self.movement_names[i]]
-                    number_of_nodes += 1
+                    self.number_of_nodes += 1
                     f_score = self.manhattan_distance(neighbor)
                     visited.add(neighbor)
-                    heapq.heappush(queue, (f_score, number_of_nodes, neighbor, new_path))
+                    heapq.heappush(queue, (f_score, self.number_of_nodes, neighbor, new_path)) #if f_score is equal, get number_of_nodes to compare
 
-        return None, number_of_nodes, None
+        return None, self.number_of_nodes, None
     
     def find_path_draw_1(self):
         queue = [(self.manhattan_distance(self.initial_state), 0, self.initial_state, [self.initial_state])]
         visited = set()
         frontier = set([self.initial_state])  # Track nodes in the frontier
         node_states = [{self.initial_state: "frontier"}]
-        number_of_nodes = 1
 
         while queue:
             f_score, _, current, path = heapq.heappop(queue)
@@ -56,7 +54,7 @@ class GBFS(SearchAlgorithm):
                 # Mark all path nodes
                 for node in path:
                     node_states.append({node: "path"})
-                return current, number_of_nodes, path, node_states
+                return current, self.number_of_nodes, path, node_states
 
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
@@ -64,32 +62,30 @@ class GBFS(SearchAlgorithm):
                 if self.is_valid_neighbor(current, neighbor) and neighbor not in visited and neighbor not in frontier:
                     new_path = path + [neighbor]
                     f_score = self.manhattan_distance(neighbor)
-                    heapq.heappush(queue, (f_score, number_of_nodes, neighbor, new_path))
+                    heapq.heappush(queue, (f_score, self.number_of_nodes, neighbor, new_path))
                     frontier.add(neighbor)
                     node_states.append({neighbor: "frontier"})  # Record neighbor as frontier
-                    number_of_nodes += 1
-
-        return None, number_of_nodes, None, node_states
+                    self.number_of_nodes += 1
+        return None, self.number_of_nodes, None, node_states
     
     def find_path_draw(self):
         queue = [(self.manhattan_distance(self.initial_state), 0, self.initial_state, [self.initial_state])]
         visited = set()
         frontier = set()
         visited_cells = []  # Initialize a list to store visited cells
-        number_of_nodes = 1
         visited.add(self.initial_state)
         while queue:
             f_score, _, current, path = heapq.heappop(queue)
             visited_cells.append(current)  # Add the current cell to the visited_cells list
             if current in self.goal_states:
-                return current, number_of_nodes, path, visited_cells, frontier
+                return current, self.number_of_nodes, path, visited_cells, frontier
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
                 if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
                     new_path = path + [neighbor]
-                    number_of_nodes += 1
+                    self.number_of_nodes += 1
                     f_score = self.manhattan_distance(neighbor)
                     visited.add(neighbor)
                     frontier.add(neighbor)
-                    heapq.heappush(queue, (f_score, number_of_nodes, neighbor, new_path))
-        return None, number_of_nodes, None, visited_cells, frontier
+                    heapq.heappush(queue, (f_score, self.number_of_nodes, neighbor, new_path))
+        return None, self.number_of_nodes, None, visited_cells, frontier

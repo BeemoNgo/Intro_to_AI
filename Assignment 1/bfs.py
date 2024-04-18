@@ -5,7 +5,7 @@ class BFS(SearchAlgorithm):
         visited = set()
 
         while queue:
-            current, path = queue.pop(0)
+            current, path = queue.pop(0) #FIFO
             visited.add(current)
 
             if current in self.goal_states:
@@ -21,25 +21,7 @@ class BFS(SearchAlgorithm):
         queue = [(self.initial_state, [self.initial_state])]
         visited = set()
         frontier = set()
-        while queue:
-            current, path = queue.pop(0)
-            visited.add(current)
-            if current in self.goal_states:
-                return current, self.number_of_nodes, path, visited, frontier
-            for neighbor, _ in self.get_neighbors(current, visited):
-                new_path = path + [neighbor]
-                queue.append((neighbor, new_path))
-                frontier.add(neighbor)
-                self.number_of_nodes += 1
-        return None, self.number_of_nodes, None, visited, frontier
-    
-   
-    def find_path_draw_1(self):
-        queue = [(self.initial_state, [self.initial_state])]
-        visited = set()
-        frontier = set()
         node_states = [{self.initial_state: "frontier"}]  # List to track the state changes of nodes
-        
 
         while queue:
             current, path = queue.pop(0)
@@ -47,14 +29,10 @@ class BFS(SearchAlgorithm):
             node_states.append({current: "visited"})  # Record current node as visited
 
             if current in self.goal_states:
-                # Update all nodes as visited first, except those already marked or in path
-                for node in node_states[-1]:
-                    if node not in path:
-                        node_states.append({node: "visited"})
-                
-                # Finally, mark the path nodes
+                # When a goal is reached, finalize node states
                 for node in path:
-                    node_states.append({node: "path"})
+                    if node not in node_states[-1]:  # Only update if not already marked in this step
+                        node_states.append({node: "path"})  # Mark the path nodes
                 return current, self.number_of_nodes, path, node_states
 
             for neighbor, _ in self.get_neighbors(current, visited):
@@ -63,6 +41,6 @@ class BFS(SearchAlgorithm):
                     queue.append((neighbor, new_path))
                     frontier.add(neighbor)
                     node_states.append({neighbor: "frontier"})  # Record neighbors as frontier
-                self.number_of_nodes += 1
+                    self.number_of_nodes += 1  # Increment node count for each new node processed
 
-        return None, self.number_of_nodes, None, node_states   
+        return None, self.number_of_nodes, None, node_states
