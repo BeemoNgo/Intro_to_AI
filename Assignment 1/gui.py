@@ -1,3 +1,5 @@
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide" # hide welcome prompt from pygame
 import pygame
 import time
 # Define colors
@@ -33,7 +35,7 @@ class GUI:
         self.screen = pygame.display.set_mode(self.window_size)
         pygame.display.set_caption("Path Finding Visualisation")
         # Initialize control buttons
-        self.buttons = self.create_buttons() 
+        self.buttons = self.create_buttons()
         self.selected_algorithm = None
         self.visited = []
         self.frontier = []
@@ -43,37 +45,8 @@ class GUI:
         self.solution_index = 0  # To track where we are in the solution list
         self.last_update_time = time.time()  # Last time the screen was updated
         self.update_interval = 0.05  # Time
-        self.offset_x = 0  # Horizontal offset for scrolling
-        self.offset_y = 0  # Vertical offset for scrolling
-        self.zoom_level = 1.0  # Zoom level, where 1.0 is the default
         pygame.font.init()
-    def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 4:  # Mouse wheel up
-                    self.zoom_level = min(self.zoom_level + 0.1, 2.0)  # Increase zoom
-                elif event.button == 5:  # Mouse wheel down
-                    self.zoom_level = max(self.zoom_level - 0.1, 0.5)  # Decrease zoom
-                else:
-                    mouse_pos = event.pos
-                    for button_rect, algorithm in self.buttons:
-                        if not self.finding_state and button_rect.collidepoint(mouse_pos):
-                            self.reset()
-                            self.selected_algorithm = algorithm
-                            print(f"Selected algorithm: {algorithm}")
-                            self.run_pathfinding()
-                            break
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    self.offset_x = min(self.offset_x + 10, 0)  # Move view left
-                elif event.key == pygame.K_RIGHT:
-                    self.offset_x = max(self.offset_x - 10, -self.width * self.block_size * self.zoom_level + self.window_width)
-                elif event.key == pygame.K_UP:
-                    self.offset_y = min(self.offset_y + 10, 0)  # Move view up
-                elif event.key == pygame.K_DOWN:
-                    self.offset_y = max(self.offset_y - 10, -self.height * self.block_size * self.zoom_level + self.window_height)
+
     def reset(self):
         self.path = []
         self.frontier = []
@@ -98,19 +71,19 @@ class GUI:
         start_x = (self.window_width - total_row_width) // 2
         # Set the starting y-coordinate for the first row of buttons
         start_y = self.window_height - (button_height * 2) - (button_spacing_y * 3)
-        
+
         for i, algorithm in enumerate(algorithms):
             row = i // buttons_per_row
             col = i % buttons_per_row
-            
+
             x = start_x + (col * (button_width + button_spacing_x))
             y = start_y + (row * (button_height + button_spacing_y))
-            
+
             button_rect = pygame.Rect(x, y, button_width, button_height)
             buttons.append((button_rect, algorithm))
-        
+
         return buttons
-    
+
     def run_pathfinding(self):
         # Execute pathfinding using the selected algorithm
         if self.selected_algorithm:
@@ -122,13 +95,6 @@ class GUI:
             self.finding_state = True
 
     def draw_grid(self, path=None, visited=None, frontier=None):
-        block_size_adjusted = int(self.block_size * self.zoom_level)
-        padding_adjusted = int(self.padding * self.zoom_level)
-        for row in range(self.height):
-            for col in range(self.width):
-                x = col * (block_size_adjusted + padding_adjusted) + padding_adjusted + self.offset_x
-                y = row * (block_size_adjusted + padding_adjusted) + padding_adjusted + self.offset_y
-                rect = pygame.Rect(x, y, block_size_adjusted, block_size_adjusted)
         # Draw the grid and pathfinding elements
         for row in range(self.height):
             for col in range(self.width):
@@ -183,7 +149,7 @@ class GUI:
             rect = pygame.Rect(x * (self.block_size + self.padding) + self.padding, y * (self.block_size + self.padding) + self.padding, self.block_size, self.block_size)
             pygame.draw.rect(self.screen, YELLOW, rect)
             pygame.draw.rect(self.screen, BLACK, rect, self.border)
-   
+
         for node in self.path:
             if self.check_special(node):
                 continue
@@ -200,7 +166,7 @@ class GUI:
             self.screen.blit(text, text_rect)
 
         pygame.display.flip()
-    
+
     def check_special(self, node):
         # Check if the node is an initial state or a goal state
         if node == self.initial_state or node in self.goal_states:
@@ -230,4 +196,3 @@ class GUI:
             pygame.display.flip()
 
         pygame.quit()
-        

@@ -2,9 +2,6 @@ import heapq
 from searchClass import SearchAlgorithm
 
 class AStar(SearchAlgorithm):
-    def __init__(self, grid, initial_state, goal_states):
-        super().__init__(grid, initial_state, goal_states)
-
     def manhattan_distance(self, point_a):
         min_distance = float('inf')
         for goal_state in self.goal_states:
@@ -23,20 +20,17 @@ class AStar(SearchAlgorithm):
             if current in self.goal_states:
                 return current, self.number_of_nodes, path
 
-            for i in range(4):
-                neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
-
-                if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
-                    new_path = path + [self.movement_names[i]]
-                    g_score_new = g_score + 1 #move to next node
-                    h_score = self.manhattan_distance(neighbor)
-                    f_score_new = g_score_new + h_score
-                    self.number_of_nodes += 1
-                    visited.add(neighbor)
-                    heapq.heappush(queue, (f_score_new, self.number_of_nodes, g_score_new, neighbor, new_path)) #if f_score is equal, get number_of_nodes to compare
+            for neighbor, movement in self.get_neighbors(current, visited):
+                new_path = path + [movement]
+                g_score_new = g_score + 1 #move to next node
+                h_score = self.manhattan_distance(neighbor)
+                f_score_new = g_score_new + h_score
+                self.number_of_nodes += 1
+                visited.add(neighbor)
+                heapq.heappush(queue, (f_score_new, self.number_of_nodes, g_score_new, neighbor, new_path)) #if f_score is equal, get number_of_nodes to compare
 
         return None, self.number_of_nodes, None
-    
+
     def find_path_draw_1(self): #For tracking the node expanded
         queue = [(0, 0, 0, self.initial_state, [self.initial_state])]  # (f_score, order, g_score, current, path)
         visited = set()
@@ -71,7 +65,7 @@ class AStar(SearchAlgorithm):
                     self.number_of_nodes += 1
 
         return None, self.number_of_nodes, None, node_states
-    
+
     def find_path_draw(self): #For visualising the methods
         queue = [(0, 0, 0, self.initial_state, [self.initial_state])]  # (f_score, order, g_score, current, path)
         visited = set()

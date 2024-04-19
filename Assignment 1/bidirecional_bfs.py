@@ -2,9 +2,6 @@ from searchClass import SearchAlgorithm
 from collections import deque
 
 class CUS1(SearchAlgorithm):
-    def __init__(self, grid, initial_state, goal_states):
-        super().__init__(grid, initial_state, goal_states)
-
     def find_path(self):
         forward_queue = deque([(self.initial_state, [])])
         backward_queue = deque([(goal_state, []) for goal_state in self.goal_states])

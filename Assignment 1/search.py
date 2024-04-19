@@ -65,7 +65,7 @@ class Generate:
             print("Unknown method")
 
         return goal, number_of_node, path
-    
+
     def find_path_draw(self, method):
         # Find path with visual state tracking
         goal = None
@@ -91,8 +91,7 @@ class Generate:
             elif method == "cus2":
                 path_finder = CUS2(self.grid, self.initial_state, self.goal_states)
                 goal, number_of_node, path, node_states = path_finder.find_path_draw_1()
-        else:
-            raise ValueError("Unknown method")
+
         if path is None:
             print('No goal is reachable.')
         return goal, number_of_node, path, node_states

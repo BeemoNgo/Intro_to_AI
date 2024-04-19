@@ -1,9 +1,6 @@
 from searchClass import SearchAlgorithm
 
 class CUS2(SearchAlgorithm):
-    def __init__(self, grid, initial_state, goal_states):
-        super().__init__(grid, initial_state, goal_states)
-
     def manhattan_distance(self, point_a):
         min_distance = float('inf')
         for goal_state in self.goal_states:
@@ -13,7 +10,7 @@ class CUS2(SearchAlgorithm):
 
     def find_path(self):
         threshold = None
-        flag = False
+        flag = False #a value to decide the program to run or stop
         while True:
             if threshold is None:
                 threshold = self.manhattan_distance(self.initial_state)
@@ -28,8 +25,8 @@ class CUS2(SearchAlgorithm):
                 if current in self.goal_states:
                     flag = True
                     break #stop the prpgrm when a goal is found
-                
-                for i in range(4):  
+
+                for i in range(4):
                     neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
                     if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
                         g_score_new = g_score + 1
@@ -39,7 +36,7 @@ class CUS2(SearchAlgorithm):
                             new_path = path + [self.movement_names[i]]
                             self.number_of_nodes += 1
                             stack.append((f_score_new, self.number_of_nodes, g_score_new, neighbor, new_path))
-                        else: 
+                        else:
                             pruned.append((f_score_new))
             if flag:
                 return current, self.number_of_nodes, path
@@ -47,7 +44,7 @@ class CUS2(SearchAlgorithm):
                 return None, self.number_of_nodes, None
             else: #if pruned list is not empty
                 threshold = min(f_score_new for f_score_new in pruned)
-        
+
     def find_path_draw_1(self): #For tracking the nodes expanded
         threshold = None
         flag = False
@@ -55,7 +52,7 @@ class CUS2(SearchAlgorithm):
         while True:
             if threshold is None:
                 threshold = self.manhattan_distance(self.initial_state)
-        
+
             path = [] #reset path
             pruned = [] #reset pruned list
             visited = set() #reset visited list
@@ -70,8 +67,8 @@ class CUS2(SearchAlgorithm):
                         node_states.append({p: "path"})  # Add path nodes to states
                     node_states.append({current: "path"})  # Mark goal as path
                     break #stop the program when a goal is found
-                
-                for i in range(4):  
+
+                for i in range(4):
                     neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
                     if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
                         g_score_new = g_score + 1
@@ -81,9 +78,9 @@ class CUS2(SearchAlgorithm):
                             new_path = path + [neighbor]
                             self.number_of_nodes += 1
                             node_states.append({neighbor: "frontier"})
-                           
+
                             stack.append((f_score_new, self.number_of_nodes, g_score_new, neighbor, new_path))
-                        else: 
+                        else:
                             pruned.append((f_score_new))
             if flag:
                 return current, self.number_of_nodes, path, node_states
@@ -91,4 +88,3 @@ class CUS2(SearchAlgorithm):
                 return None, self.number_of_nodes, None,node_states
             else: #if pruned list is not empty
                 threshold = min(f_score_new for f_score_new in pruned)
-              

@@ -2,9 +2,6 @@ import heapq
 from searchClass import SearchAlgorithm
 
 class GBFS(SearchAlgorithm):
-    def __init__(self, grid, initial_state, goal_states):
-        super().__init__(grid, initial_state, goal_states)
-
     def manhattan_distance(self, point_a):
         min_distance = float('inf')
         for goal_state in self.goal_states:
@@ -23,18 +20,15 @@ class GBFS(SearchAlgorithm):
             if current in self.goal_states:
                 return current, self.number_of_nodes, path
 
-            for i in range(4):
-                neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
-
-                if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
-                    new_path = path + [self.movement_names[i]]
-                    self.number_of_nodes += 1
-                    f_score = self.manhattan_distance(neighbor)
-                    visited.add(neighbor)
-                    heapq.heappush(queue, (f_score, self.number_of_nodes, neighbor, new_path)) #if f_score is equal, get number_of_nodes to compare
+            for neighbor, movement in self.get_neighbors(current, visited):
+                new_path = path + [movement]
+                self.number_of_nodes += 1
+                f_score = self.manhattan_distance(neighbor)
+                visited.add(neighbor)
+                heapq.heappush(queue, (f_score, self.number_of_nodes, neighbor, new_path)) #if f_score is equal, get number_of_nodes to compare
 
         return None, self.number_of_nodes, None
-    
+
     def find_path_draw_1(self):
         queue = [(self.manhattan_distance(self.initial_state), 0, self.initial_state, [self.initial_state])]
         visited = set()
@@ -67,7 +61,7 @@ class GBFS(SearchAlgorithm):
                     node_states.append({neighbor: "frontier"})  # Record neighbor as frontier
                     self.number_of_nodes += 1
         return None, self.number_of_nodes, None, node_states
-    
+
     def find_path_draw(self):
         queue = [(self.manhattan_distance(self.initial_state), 0, self.initial_state, [self.initial_state])]
         visited = set()

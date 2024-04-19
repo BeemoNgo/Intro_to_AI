@@ -12,21 +12,14 @@ class DFS(SearchAlgorithm):
 
         while stack:
             current, path = stack.pop() #LIFO
-
-            if current in visited:
-                continue
-
             visited.add(current)
 
             if current in self.goal_states:
                 return current, self.number_of_nodes, path
 
-            for i in range(4):
-                neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
-
-                if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
-                    stack.append((neighbor, path + [self.movement_names[i]]))
-                    self.number_of_nodes += 1
+            for neighbor, movement in self.get_neighbors(current, visited):
+                stack.append((neighbor, path + [movement]))
+                self.number_of_nodes += 1
 
         return None, self.number_of_nodes, None
     def find_path_draw(self): #For visualising the methods
@@ -42,6 +35,7 @@ class DFS(SearchAlgorithm):
             visited_cells.append(current)  # Add the current cell to the visited_cells list
             if current in self.goal_states:
                 return current, self.number_of_nodes, path, visited_cells, frontier
+
             for i in range(4):
                 neighbor = (current[0] + self.directions[i][0], current[1] + self.directions[i][1])
                 if self.is_valid_neighbor(current, neighbor) and neighbor not in visited:
